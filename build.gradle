@@ -1,4 +1,9 @@
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
+ext {
+    key = 'todolist key'
+    key_name = 'todolist key'
+    todo_key_pass = 'todolist0213'
+    app_id = 'TodoList'
+}// Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
     repositories {

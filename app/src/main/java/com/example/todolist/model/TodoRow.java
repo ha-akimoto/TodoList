@@ -1,6 +1,7 @@
-package com.example.todolist;
+package com.example.todolist.model;
 
 import java.util.Date;
+
 
 public class TodoRow {
 
@@ -53,7 +54,6 @@ public class TodoRow {
     public void setCompleteStatus(boolean completeStatus) {
         this.completeStatus = completeStatus;
     }
-
 
 
 }

@@ -1,6 +1,17 @@
+ext {
+    keyStorePass = 'hkapp0213'
+}
 apply plugin: 'com.android.application'
 
 android {
+    signingConfigs {
+        release {
+            storeFile file('/Users/akimoto/AndroidStudioProjects/keyStore.jks')
+            storePassword keyStorePass
+            keyAlias = key_name
+            keyPassword todo_key_pass
+        }
+    }
     compileSdkVersion 29
     buildToolsVersion "29.0.2"
     defaultConfig {
@@ -13,11 +24,14 @@ android {
     }
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+            applicationIdSuffix = app_id
         }
     }
 }
+
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
@@ -28,4 +42,9 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
     implementation 'com.google.android.material:material:1.0.0'
+    // AAC viewModel & liveData
+    implementation 'androidx.lifecycle:lifecycle-extensions:2.1.0'
+    // Room
+    implementation 'androidx.room:room-runtime:2.2.0-rc01'
+    annotationProcessor 'androidx.room:room-compiler:2.2.0-rc01'
 }
