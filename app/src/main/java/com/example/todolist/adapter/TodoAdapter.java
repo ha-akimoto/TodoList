@@ -3,7 +3,10 @@ package com.example.todolist.adapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.ImageButton;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -12,7 +15,6 @@ import com.example.todolist.R;
 import com.example.todolist.common.Constants;
 import com.example.todolist.common.TodoComparator;
 import com.example.todolist.common.TodoTextPaint;
-import com.example.todolist.common.TodoViewHolder;
 import com.example.todolist.listener.OnRecyclerListener;
 import com.example.todolist.model.TodoRow;
 import com.example.todolist.room.TodoDB;
@@ -23,7 +25,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 
-public class TodoAdapter extends RecyclerView.Adapter<TodoViewHolder> {
+public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.ViewHolder> {
 
     private ArrayList<TodoRow> todoList;
     private OnRecyclerListener listener;
@@ -47,29 +49,29 @@ public class TodoAdapter extends RecyclerView.Adapter<TodoViewHolder> {
      * @param viewType The view type of the new View.
      * @return A new ViewHolder that holds a View of the given view type.
      * @see #getItemViewType(int)
-     * @see #onBindViewHolder(TodoViewHolder, int)
      */
     @NonNull
     @Override
-    public TodoViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public TodoAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         // 表示するレイアウトを設定
-        return new TodoViewHolder(LayoutInflater.from(parent.getContext())
+        return new TodoAdapter.ViewHolder(LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.todo_row, parent, false));
     }
 
     /**
      * RecyclerView.Adapterで必須のメソッド
-     * 作成したViewHolderに値を設定する
+     * ViewHolderのバインドを行う
      *
      * @param holder   The ViewHolder which should be updated to represent the contents of the
      *                 item at the given position in the data set.
      * @param position The position of the item within the adapter's data set.
      */
     @Override
-    public void onBindViewHolder(@NonNull final TodoViewHolder holder, final int position) {
-        final RecyclerView.ViewHolder viewHolder = (RecyclerView.ViewHolder) holder;
+    public void onBindViewHolder(@NonNull TodoAdapter.ViewHolder holder, int position) {
+        final TodoAdapter.ViewHolder viewHolder = (TodoAdapter.ViewHolder) holder;
 
         final TodoRow todoRow = this.todoList.get(position);
+
         // テキストボックスのデータ表示
         holder.getTextView().setText(todoRow.getTitle());
         if (null != todoRow.getEndDate()) {
@@ -80,46 +82,12 @@ public class TodoAdapter extends RecyclerView.Adapter<TodoViewHolder> {
 
         // 完了ステータスがTrueなら見た目を変更する
         if (todoRow.isCompleteStatus()) {
-            TodoTextPaint.grayOut(holder);
+            TodoTextPaint.grayOut(holder.getTextView());
             holder.getCheckBox().setChecked(true);
+        } else {
+            TodoTextPaint.restore(holder.getTextView());
+            holder.getCheckBox().setChecked(false);
         }
-
-        // テキストボックスにリスナー設定
-        holder.getTextView().setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                listener.onRecyclerClicked(v, todoList.get(viewHolder.getAdapterPosition()));
-
-            }
-        });
-
-        // チェックボックスにリスナー設定
-        holder.getCheckBox().setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                // Todoリストの完了ステータスを設定する
-                todoList.get(viewHolder.getAdapterPosition()).setCompleteStatus(isChecked);
-                // 完了ステータスがTrueの場合、テキストをグレーに変更して取消線を入れる
-                if (isChecked) {
-                    TodoTextPaint.grayOut(holder);
-                } else {
-                    // Falseの場合は戻す
-                    TodoTextPaint.restore(holder);
-                }
-                // ローカルDBの更新
-                update(viewHolder.getAdapterPosition(), todoList.get(viewHolder.getAdapterPosition()));
-            }
-        });
-
-        // 削除ボタンにリスナー設定
-        holder.getDeleteButton().setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                remove(viewHolder.getAdapterPosition());
-            }
-        });
-
-
     }
 
     /**
@@ -200,5 +168,92 @@ public class TodoAdapter extends RecyclerView.Adapter<TodoViewHolder> {
      */
     public ArrayList<TodoRow> getTodoList() {
         return this.todoList;
+    }
+
+    public class ViewHolder extends RecyclerView.ViewHolder {
+
+        private TextView textView;
+        private CheckBox checkBox;
+        private TextView dateView;
+        private ImageButton deleteButton;
+
+        public ViewHolder(@NonNull View itemView) {
+            super(itemView);
+            this.textView = itemView.findViewById(R.id.textView_title);
+            this.checkBox = itemView.findViewById(R.id.checkBox);
+            this.dateView = itemView.findViewById(R.id.dateView);
+            this.deleteButton = itemView.findViewById(R.id.deleteButton);
+
+            // テキストボックスにリスナー設定
+            this.textView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    listener.onRecyclerClicked(v, todoList.get(getAdapterPosition()));
+
+                }
+            });
+
+            // チェックボックスにリスナー設定
+            this.checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    // todoListの完了ステータスとチェックボックスの状態が違う場合のみ処理を行う
+                    if (isChecked != todoList.get(getAdapterPosition()).isCompleteStatus()) {
+                        // Todoリストの完了ステータスを設定する
+                        todoList.get(getAdapterPosition()).setCompleteStatus(isChecked);
+                        // 完了ステータスがTrueの場合、テキストをグレーに変更して取消線を入れる
+                        if (isChecked) {
+                            TodoTextPaint.grayOut(textView);
+                        } else {
+                            // Falseの場合は戻す
+                            TodoTextPaint.restore(textView);
+                        }
+                        // ローカルDBの更新
+                        update(getAdapterPosition(), todoList.get(getAdapterPosition()));
+                    }
+                }
+            });
+
+            // 削除ボタンにリスナー設定
+            getDeleteButton().setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    remove(getAdapterPosition());
+                }
+            });
+        }
+
+
+        public TextView getTextView() {
+            return textView;
+        }
+
+        public void setTextView(TextView textView) {
+            this.textView = textView;
+        }
+
+        public CheckBox getCheckBox() {
+            return checkBox;
+        }
+
+        public void setCheckBox(CheckBox checkBox) {
+            this.checkBox = checkBox;
+        }
+
+        public TextView getDateView() {
+            return dateView;
+        }
+
+        public void setDateView(TextView dateView) {
+            this.dateView = dateView;
+        }
+
+        public ImageButton getDeleteButton() {
+            return deleteButton;
+        }
+
+        public void setDeleteButton(ImageButton deleteButton) {
+            this.deleteButton = deleteButton;
+        }
     }
 }

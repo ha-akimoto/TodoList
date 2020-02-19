@@ -74,8 +74,8 @@ public class CreateTaskActivity extends AppCompatActivity implements DatePickerD
         String date = ((TextView) findViewById(R.id.textView_date)).getText().toString();
         String detail = ((EditText) findViewById(R.id.editText_detail)).getText().toString();
 
-        intent.putExtra(Constants.KEY_POSITION, position);
-        intent.putExtra(Constants.KEY_ID, id);
+        intent.putExtra(Constants.KEY_POSITION, this.position);
+        intent.putExtra(Constants.KEY_ID, this.id);
         intent.putExtra(Constants.KEY_TITLE, title);
         intent.putExtra(Constants.KEY_DATE, date);
         intent.putExtra(Constants.KEY_DETAIL, detail);
