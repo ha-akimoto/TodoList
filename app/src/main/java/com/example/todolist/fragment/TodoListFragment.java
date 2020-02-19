@@ -125,7 +125,7 @@ public class TodoListFragment extends Fragment implements OnRecyclerListener {
 
         super.onActivityResult(requestCode, resultCode, data);
         // リザルトコードが一致する場合
-        if (Constants.RESULT_CODE == resultCode) {
+        if (Constants.RESULT_CODE == resultCode && null != data) {
 
             // Todoタスクを取得
             TodoRow row = new TodoRow();
