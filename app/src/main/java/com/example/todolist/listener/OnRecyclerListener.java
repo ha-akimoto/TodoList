@@ -2,7 +2,7 @@ package com.example.todolist.listener;
 
 import android.view.View;
 
-import com.example.todolist.model.TodoRow;
+import com.example.todolist.viewmodel.TodoRow;
 
 public interface OnRecyclerListener {
 

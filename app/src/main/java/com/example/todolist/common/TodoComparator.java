@@ -1,6 +1,6 @@
 package com.example.todolist.common;
 
-import com.example.todolist.model.TodoRow;
+import com.example.todolist.viewmodel.TodoRow;
 
 import java.util.Comparator;
 
@@ -9,9 +9,9 @@ public class TodoComparator implements Comparator<TodoRow> {
     @Override
     public int compare(TodoRow o1, TodoRow o2) {
         // 第一条件：完了ステータスFalseが上、Trueが下
-        if (o1.isCompleteStatus() && !o2.isCompleteStatus()) {
+        if (o1.getCompleteStatus() && !o2.getCompleteStatus()) {
             return 1;
-        } else if (!o1.isCompleteStatus() && o2.isCompleteStatus()) {
+        } else if (!o1.getCompleteStatus() && o2.getCompleteStatus()) {
             return -1;
         } else {
             // 第二条件：期限日の昇順（期限日が入力されてない要素は下へ）

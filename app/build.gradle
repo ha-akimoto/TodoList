@@ -34,6 +34,9 @@ android {
         sourceCompatibility = 1.8
         targetCompatibility = 1.8
     }
+    dataBinding {
+        enabled = true
+    }
 }
 
 
@@ -46,9 +49,21 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
     implementation 'com.google.android.material:material:1.1.0'
-    // AAC viewModel & liveData
+
+    // Room components
+    implementation 'androidx.room:room-runtime:2.2.4'
+    annotationProcessor 'androidx.room:room-compiler:2.2.4'
+    androidTestImplementation 'androidx.room:room-testing:2.2.4'
+
+    // Lifecycle components
+    implementation 'androidx.lifecycle:lifecycle-common-java8:2.2.0'
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
-    // Room
-    implementation 'androidx.room:room-runtime:2.2.3'
-    annotationProcessor 'androidx.room:room-compiler:2.2.3'
+    annotationProcessor 'androidx.lifecycle:lifecycle-compiler:2.2.0'
+
+
+    // UI
+    implementation 'com.google.android.material:material:1.1.0'
+
+    // Testing
+    androidTestImplementation "androidx.arch.core:core-testing:2.1.0"
 }

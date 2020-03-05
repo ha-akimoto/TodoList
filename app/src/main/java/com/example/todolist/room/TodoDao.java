@@ -1,5 +1,6 @@
 package com.example.todolist.room;
 
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
@@ -12,8 +13,8 @@ import java.util.List;
 @Dao
 public interface TodoDao {
 
-    @Query("SELECT * FROM todo")
-    List<TodoEntity> getAll();
+    @Query("SELECT * FROM todo ORDER BY completeStatus ASC , endDate ASC")
+    LiveData<List<TodoEntity>> getAllSorted();
 
     @Query("SELECT id FROM todo ORDER BY id DESC LIMIT 1")
     int getMaxId();

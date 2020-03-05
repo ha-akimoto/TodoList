@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.todolist.R;
 import com.example.todolist.common.Constants;
 import com.example.todolist.fragment.TodoListFragment;
-import com.example.todolist.model.TodoRow;
+import com.example.todolist.viewmodel.TodoRow;
 
 import java.util.ArrayList;
 
