@@ -9,8 +9,6 @@ import android.view.ViewGroup;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -21,13 +19,10 @@ import com.example.todolist.adapter.TodoAdapter;
 import com.example.todolist.common.Constants;
 import com.example.todolist.common.SwipeRemove;
 import com.example.todolist.listener.OnRecyclerListener;
-import com.example.todolist.viewmodel.TodoRow;
-import com.example.todolist.viewmodel.TodoViewModel;
-import com.example.todolist.common.TodoConverter;
 import com.example.todolist.room.TodoEntity;
+import com.example.todolist.viewmodel.TodoViewModel;
 
 import java.text.SimpleDateFormat;
-import java.util.List;
 
 public class TodoListFragment extends Fragment implements OnRecyclerListener {
 
@@ -69,23 +64,16 @@ public class TodoListFragment extends Fragment implements OnRecyclerListener {
         View view = inflater.inflate(R.layout.fragment_todo_list, container, false);
 
         // ViewModelの設定
-        this.todoViewModel = new ViewModelProvider(this).get(TodoViewModel.class);
+        this.todoViewModel = new TodoViewModel(getContext());
 
         // アダプターの設定
         Context context = view.getContext();
         RecyclerView recyclerView = (RecyclerView) view;
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
-        this.todoAdapter = new TodoAdapter(todoViewModel.getLiveTodoEntity().getValue(), this.mListener, this.todoViewModel);
 
-        this.todoViewModel.getLiveTodoEntity().observe(getViewLifecycleOwner(), new Observer<List<TodoEntity>>() {
-            @Override
-            public void onChanged(List<TodoEntity> entityList) {
-                if (null != entityList) {
-                    todoAdapter.setTodoList(TodoConverter.convertListEntityToRow(entityList));
-                    todoAdapter.notifyDataSetChanged();
-                }
-            }
-        });
+        this.todoAdapter = new TodoAdapter(this.mListener, this.todoViewModel);
+
+
 
         recyclerView.setAdapter(this.todoAdapter);
 
@@ -122,48 +110,55 @@ public class TodoListFragment extends Fragment implements OnRecyclerListener {
         if (Constants.RESULT_CODE == resultCode && null != data) {
 
             // Todoタスクを取得
-            TodoRow row = new TodoRow();
-            row.setId(data.getIntExtra(Constants.KEY_ID, 0));
-            row.setTitle(data.getStringExtra(Constants.KEY_TITLE));
-            row.setEndDate(data.getStringExtra(Constants.KEY_DATE));
-            row.setCompleteStatus(data.getBooleanExtra(Constants.KEY_COMP_STATUS, false));
-            row.setDetail(data.getStringExtra(Constants.KEY_DETAIL));
+            TodoEntity entity = new TodoEntity();
+            entity.title = data.getStringExtra(Constants.KEY_TITLE);
+            entity.endDate = data.getStringExtra(Constants.KEY_DATE);
+            entity.completeStatus =
+                    data.getBooleanExtra(Constants.KEY_COMP_STATUS, false);
+            entity.detail = data.getStringExtra(Constants.KEY_DETAIL);
 
             // リクエストコードの判定
             if (Constants.REQUEST_CODE_INSERT == requestCode) {
                 // 追加の場合
-                this.todoAdapter.insert(row);
+                this.todoAdapter.insert(entity);
+
 
             } else if (Constants.REQUEST_CODE_UPDATE == requestCode) {
                 // 更新の場合
+                entity.id = data.getIntExtra(Constants.KEY_ID, 0);
                 int position = data.getIntExtra(Constants.KEY_POSITION, -1);
-                this.todoAdapter.update(position, row);
-
+                this.todoAdapter.update(position, entity);
             }
         }
 
     }
 
     @Override
-    public void onRecyclerClicked(View v, TodoRow row) {
+    public void onRecyclerClicked(View v, TodoEntity entity, int position) {
 
         // インテントのインスタンス化
         Intent intent = new Intent(getContext(), CreateTaskActivity.class);
 
         // Activityに渡す値
-        intent.putExtra(Constants.KEY_POSITION, this.todoAdapter.getTodoList().indexOf(row));
-        intent.putExtra(Constants.KEY_ID, row.getId());
-        intent.putExtra(Constants.KEY_TITLE, row.getTitle());
-        if (null != row.getEndDate()) {
-            intent.putExtra(Constants.KEY_DATE, row.getEndDate());
+        intent.putExtra(Constants.KEY_POSITION, position);
+        intent.putExtra(Constants.KEY_ID, entity.id);
+        intent.putExtra(Constants.KEY_TITLE, entity.title);
+        if (null != entity.endDate) {
+            intent.putExtra(Constants.KEY_DATE, entity.endDate);
         }
-        intent.putExtra(Constants.KEY_COMP_STATUS, row.getCompleteStatus());
-        intent.putExtra(Constants.KEY_DETAIL, row.getDetail());
+        intent.putExtra(Constants.KEY_COMP_STATUS, entity.completeStatus);
+        intent.putExtra(Constants.KEY_DETAIL, entity.detail);
 
         // リクエストコードの設定
         int requestCode = Constants.REQUEST_CODE_UPDATE;
 
         // 返却値を考慮したActivityの起動を行う
         startActivityForResult(intent, requestCode);
+    }
+
+    public View createView(View view) {
+
+
+        return view;
     }
 }

@@ -13,34 +13,23 @@ import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.todolist.R;
-import com.example.todolist.common.Constants;
 import com.example.todolist.common.TodoComparator;
 import com.example.todolist.common.TodoTextPaint;
 import com.example.todolist.databinding.TodoRowBinding;
 import com.example.todolist.listener.OnRecyclerListener;
-import com.example.todolist.viewmodel.TodoRow;
-import com.example.todolist.viewmodel.TodoViewModel;
-import com.example.todolist.common.TodoConverter;
 import com.example.todolist.room.TodoEntity;
+import com.example.todolist.viewmodel.TodoViewModel;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.ViewHolder> {
 
-    private List<TodoRow> todoList;
+    //private List<TodoRow> todoList;
     private OnRecyclerListener listener;
-    private SimpleDateFormat dateFormat = new SimpleDateFormat(Constants.DATE_FORMAT);
     private TodoViewModel viewModel;
 
-    public TodoAdapter(List<TodoEntity> list, OnRecyclerListener listener, TodoViewModel viewModel) {
-        if (null != list) {
-            this.todoList = TodoConverter.convertListEntityToRow(list);
-        } else {
-            this.todoList = new ArrayList<>();
-        }
+    public TodoAdapter(OnRecyclerListener listener, TodoViewModel viewModel) {
         this.listener = listener;
         this.viewModel = viewModel;
     }
@@ -76,14 +65,36 @@ public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.ViewHolder> {
     public void onBindViewHolder(@NonNull TodoAdapter.ViewHolder holder, int position) {
         final TodoAdapter.ViewHolder viewHolder = (TodoAdapter.ViewHolder) holder;
 
-        final TodoRow todoRow = this.todoList.get(position);
+        final List<TodoEntity> entityList = this.viewModel.liveTodo.getValue();
+        final TodoEntity entity = entityList.get(position);
+        // カテゴリー名の表示
 
-        holder.getBinding().setTodoRow(todoRow);
+        String date = entity.endDate;
+        if (entity.completeStatus) {
+            if (position == 0 || (!entityList.get(position - 1).completeStatus)) {
+                // 対象のタスクが完了済みで、一つ前のタスクが未完了の場合
+                viewHolder.category.setVisibility(View.VISIBLE);
+                viewHolder.category.setText("完了済み");
+            } else {
+                viewHolder.category.setVisibility(View.GONE);
+            }
+        } else if (position == 0 ||
+                !date.equals(entityList.get(position - 1).endDate)) {
+            // 対象のタスクの日付が、一つ前のタスクの日付と違う場合
+            viewHolder.category.setVisibility(View.VISIBLE);
+            viewHolder.category.setText(date);
+        } else {
+            viewHolder.category.setVisibility(View.GONE);
+        }
+
+        holder.getBinding().setViewModel(this.viewModel);
+        holder.getBinding().setPosition(viewHolder.getAdapterPosition());
+        //holder.getBinding().setTodoRow(entity);
         holder.getBinding().executePendingBindings();
 
 
         // 完了ステータスがTrueなら見た目を変更する
-        if (todoRow.getCompleteStatus()) {
+        if (entity.completeStatus) {
             TodoTextPaint.grayOut(holder.getTextView());
 
         } else {
@@ -101,7 +112,7 @@ public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.ViewHolder> {
      */
     @Override
     public int getItemCount() {
-        return todoList.size();
+        return viewModel.liveTodo.getValue().size();
     }
 
 
@@ -113,72 +124,67 @@ public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.ViewHolder> {
     public void remove(int position) {
 
         // エンティティを作成して削除
-        this.viewModel.delete(TodoConverter.convertRowToEntity(this.todoList.get(position)));
+        this.viewModel.delete(this.viewModel.liveTodo.getValue().get(position));
         // Todoリストから削除
-        this.todoList.remove(position);
+        this.viewModel.liveTodo.getValue().remove(position);
 
-        notifyItemRemoved(position);
+        notifyDataSetChanged();
+        //notifyItemRemoved(position);
     }
 
     /**
      * Todoタスクの追加
      *
-     * @param row 追加するタスク
+     * @param entity 追加するタスク
      */
-    public void insert(TodoRow row) {
+    public void insert(TodoEntity entity) {
 
         // DBに追加
-        this.viewModel.insert(TodoConverter.convertRowToEntity(row));
+        this.viewModel.insert(entity);
 
         // Todoリストに追加
-        this.todoList.add(row);
-        Collections.sort(this.todoList, new TodoComparator());
-        int position = this.todoList.indexOf(row);
+        int id = this.viewModel.getMaxId();
+        entity.id = id;
+        List<TodoEntity> todoList = this.viewModel.liveTodo.getValue();
+        todoList.add(entity);
+        Collections.sort(todoList, new TodoComparator());
+        this.viewModel.liveTodo.setValue(todoList);
+        //int position = this.todoList.indexOf(entity);
 
-        notifyItemInserted(position);
+        notifyDataSetChanged();
+
+        //notifyItemInserted(position);
     }
 
     /**
      * Todoタスクの更新
      *
      * @param position 更新するタスクのポジション
-     * @param row   更新後のタスク
+     * @param entity   更新後のタスク
      */
-    public void update(int position, TodoRow row) {
+    public void update(int position, TodoEntity entity) {
 
         // Todoリストの入れ替え
-        this.todoList.remove(position);
-        this.todoList.add(position, row);
+        List<TodoEntity> todoList = this.viewModel.liveTodo.getValue();
+        todoList.remove(position);
+        todoList.add(entity);
 
         // 並び替え
-        int from = position;
-        Collections.sort(this.todoList, new TodoComparator());
-        int to = this.todoList.indexOf(row);
+        //int from = position;
+        Collections.sort(todoList, new TodoComparator());
+        //int to = this.todoList.indexOf(entity);
+        this.viewModel.liveTodo.setValue(todoList);
 
         // DB更新
-        this.viewModel.update(TodoConverter.convertRowToEntity(row));
+        this.viewModel.update(entity);
 
-        notifyItemMoved(from, to);
-        notifyItemChanged(to, row);
+        notifyDataSetChanged();
+        //notifyItemMoved(from, to);
+        //notifyItemChanged(to, entity);
 
     }
 
-    /**
-     * TodoListの取得
-     *
-     * @return Todoリスト
-     */
-    public List<TodoRow> getTodoList() {
-        return this.todoList;
-    }
 
-    public void setTodoList(List<TodoRow> todoList) {
-        if (null == todoList) {
-            this.todoList = new ArrayList<TodoRow>();
-        } else {
-            this.todoList = todoList;
-        }
-    }
 
 
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -188,26 +194,26 @@ public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.ViewHolder> {
         private TextView dateView;
         private ImageButton deleteButton;
         private TodoRowBinding binding;
+        private TextView category;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             this.deleteButton = itemView.findViewById(R.id.deleteButton);
-
-            this.binding = DataBindingUtil.bind(itemView);
-
-
             this.textView = itemView.findViewById(R.id.textView_title);
             this.dateView = itemView.findViewById(R.id.dateView);
             this.checkBox = itemView.findViewById(R.id.checkBox);
+            this.binding = DataBindingUtil.bind(itemView);
+            this.category = itemView.findViewById(R.id.category_text_view);
 
 
             // テキストボックスにリスナー設定
             this.textView.setOnClickListener(new View.OnClickListener() {
+
                 @Override
                 public void onClick(View v) {
-
-                    listener.onRecyclerClicked(v, todoList.get(getAdapterPosition()));
-
+                    listener.onRecyclerClicked(v
+                            , viewModel.liveTodo.getValue().get(getAdapterPosition())
+                            , getAdapterPosition());
                 }
             });
 
@@ -215,11 +221,13 @@ public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.ViewHolder> {
             this.checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    TodoEntity entity = viewModel.liveTodo.getValue().get(getAdapterPosition());
 
                     // todoListの完了ステータスとチェックボックスの状態が違う場合のみ処理を行う
-                    if (isChecked != todoList.get(getAdapterPosition()).getCompleteStatus()) {
+                    if (isChecked != entity.completeStatus) {
                         // Todoリストの完了ステータスを設定する
-                        todoList.get(getAdapterPosition()).setCompleteStatus(isChecked);
+                        viewModel.liveTodo.getValue().get(getAdapterPosition())
+                                .completeStatus = isChecked;
                         // 完了ステータスがTrueの場合、テキストをグレーに変更して取消線を入れる
                         if (isChecked) {
                             TodoTextPaint.grayOut(textView);
@@ -228,9 +236,9 @@ public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.ViewHolder> {
                             TodoTextPaint.restore(textView);
                         }
                         // ローカルDBの更新
-                        update(getAdapterPosition(), todoList.get(getAdapterPosition()));
-                    }
+                        update(getAdapterPosition(), entity);
 
+                    }
 
                 }
             });
@@ -283,4 +291,6 @@ public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.ViewHolder> {
             return binding;
         }
     }
+
+
 }

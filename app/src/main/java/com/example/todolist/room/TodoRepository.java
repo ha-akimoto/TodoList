@@ -1,8 +1,6 @@
 package com.example.todolist.room;
 
-import android.app.Application;
-
-import androidx.lifecycle.LiveData;
+import android.content.Context;
 
 import java.util.List;
 
@@ -10,21 +8,21 @@ public class TodoRepository {
 
     private TodoDao mTodoDao;
 
-    private LiveData<List<TodoEntity>> mLiveTodoEntity;
+    private List<TodoEntity> mLiveTodoEntity;
 
 
-    public TodoRepository(Application application) {
-        TodoDB db = TodoDB.getDatabase(application);
+    public TodoRepository(Context context) {
+        TodoDB db = TodoDB.getDatabase(context);
         this.mTodoDao = db.todoDao();
         this.mLiveTodoEntity = this.mTodoDao.getAllSorted();
 
     }
 
-    public LiveData<List<TodoEntity>> getLiveTodoEntity() {
+    public List<TodoEntity> getLiveTodoEntity() {
         return this.mLiveTodoEntity;
     }
 
-    public LiveData<List<TodoEntity>> getAllSorted() {
+    public List<TodoEntity> getAllSorted() {
         return this.mTodoDao.getAllSorted();
     }
 
