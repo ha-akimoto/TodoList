@@ -7,19 +7,13 @@ import android.view.View;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.todolist.R;
 import com.example.todolist.common.Constants;
 import com.example.todolist.fragment.TodoListFragment;
-import com.example.todolist.viewmodel.TodoRow;
-
-import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
-    private RecyclerView todoListView;
-    private ArrayList<TodoRow> todoList = new ArrayList<TodoRow>();
     private TodoListFragment todoListFragment;
 
 

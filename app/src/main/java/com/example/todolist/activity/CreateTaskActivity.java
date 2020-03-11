@@ -53,11 +53,16 @@ public class CreateTaskActivity extends AppCompatActivity implements DatePickerD
 
         }
         // 期限日のTextViewのクリックリスナーの設定（日付入力ダイアログ）
-        final DatePickerDialogFragment datePicker = new DatePickerDialogFragment(this, date);
+
         ((TextView) findViewById(R.id.textView_date))
                 .setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        Bundle bundle = new Bundle();
+                        bundle.putString(Constants.KEY_DATE,
+                                ((TextView) findViewById(R.id.textView_date)).getText().toString());
+                        DatePickerDialogFragment datePicker = new DatePickerDialogFragment();
+                        datePicker.setArguments(bundle);
                         datePicker.show(getSupportFragmentManager(), "datePicker");
                     }
                 });

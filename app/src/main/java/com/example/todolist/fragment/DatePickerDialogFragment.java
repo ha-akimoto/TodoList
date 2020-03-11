@@ -11,14 +11,10 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.fragment.app.DialogFragment;
 
-public class DatePickerDialogFragment extends DialogFragment {
-    DatePickerDialog.OnDateSetListener listener;
-    String date;
+import com.example.todolist.activity.CreateTaskActivity;
+import com.example.todolist.common.Constants;
 
-    public DatePickerDialogFragment(DatePickerDialog.OnDateSetListener listener, String date) {
-        this.listener = listener;
-        this.date = date;
-    }
+public class DatePickerDialogFragment extends DialogFragment {
 
     /**
      * 日付選択ダイアログの作成
@@ -34,7 +30,9 @@ public class DatePickerDialogFragment extends DialogFragment {
         int month = 0;
         int dayOfMonth = 0;
 
-        if (null == this.date || this.date.isEmpty()) {
+        String date = getArguments().getString(Constants.KEY_DATE);
+
+        if (null == date || date.isEmpty()) {
             Calendar calendar = Calendar.getInstance();
             year = calendar.get(Calendar.YEAR);
             month = calendar.get(Calendar.MONTH);
@@ -46,7 +44,9 @@ public class DatePickerDialogFragment extends DialogFragment {
             dayOfMonth = Integer.parseInt(date.substring(8, 10));
         }
 
-        DatePickerDialog datePickerDialog = new DatePickerDialog(getActivity(), listener, year, month, dayOfMonth);
+        DatePickerDialog datePickerDialog =
+                new DatePickerDialog(getActivity(),
+                        (CreateTaskActivity) getActivity(), year, month, dayOfMonth);
 
         return datePickerDialog;
     }
