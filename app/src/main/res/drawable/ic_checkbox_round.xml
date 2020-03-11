@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- チェックON かつ 選択されている状態 -->
+    <item android:state_checked="true" android:state_pressed="true" android:drawable="@drawable/ic_check_circle_selected_24dp" />
+    <!-- チェックON　かつ 選択されていない状態-->
+    <item android:state_checked="true" android:drawable="@drawable/ic_check_circle_black_24dp" />
+    <!-- チェックOFF かつ 選択されている状態-->
+    <item android:state_checked="false" android:state_pressed="true" android:drawable="@drawable/ic_radio_button_unchecked_selected_24dp" />
+    <!-- チェックOFF かつ 選択されていない状態-->
+    <item android:state_checked="false" android:drawable="@drawable/ic_radio_button_unchecked_black_24dp" />
+</selector>

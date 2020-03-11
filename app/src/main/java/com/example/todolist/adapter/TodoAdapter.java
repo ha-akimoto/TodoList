@@ -1,5 +1,6 @@
 package com.example.todolist.adapter;
 
+import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +14,7 @@ import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.todolist.R;
+import com.example.todolist.common.Constants;
 import com.example.todolist.common.TodoComparator;
 import com.example.todolist.common.TodoTextPaint;
 import com.example.todolist.databinding.TodoRowBinding;
@@ -20,6 +22,7 @@ import com.example.todolist.listener.OnRecyclerListener;
 import com.example.todolist.room.TodoEntity;
 import com.example.todolist.viewmodel.TodoViewModel;
 
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
 
@@ -65,33 +68,83 @@ public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.ViewHolder> {
     public void onBindViewHolder(@NonNull TodoAdapter.ViewHolder holder, int position) {
         final TodoAdapter.ViewHolder viewHolder = (TodoAdapter.ViewHolder) holder;
 
+        int adapterPosition = viewHolder.getAdapterPosition();
         final List<TodoEntity> entityList = this.viewModel.liveTodo.getValue();
-        final TodoEntity entity = entityList.get(position);
-        // カテゴリー名の表示
+        final TodoEntity entity = entityList.get(adapterPosition);
 
-        String date = entity.endDate;
-        if (entity.completeStatus) {
-            if (position == 0 || (!entityList.get(position - 1).completeStatus)) {
-                // 対象のタスクが完了済みで、一つ前のタスクが未完了の場合
-                viewHolder.category.setVisibility(View.VISIBLE);
-                viewHolder.category.setText("完了済み");
-            } else {
-                viewHolder.category.setVisibility(View.GONE);
-            }
-        } else if (position == 0 ||
-                !date.equals(entityList.get(position - 1).endDate)) {
-            // 対象のタスクの日付が、一つ前のタスクの日付と違う場合
-            viewHolder.category.setVisibility(View.VISIBLE);
-            viewHolder.category.setText(date);
-        } else {
-            viewHolder.category.setVisibility(View.GONE);
-        }
-
+        // バインディング
         holder.getBinding().setViewModel(this.viewModel);
         holder.getBinding().setPosition(viewHolder.getAdapterPosition());
-        //holder.getBinding().setTodoRow(entity);
         holder.getBinding().executePendingBindings();
 
+        viewHolder.category.setVisibility(View.GONE);
+        viewHolder.categoryDate.setVisibility(View.GONE);
+
+        String today = DateFormat.format(Constants.DATE_FORMAT, Calendar.getInstance()).toString();
+        String date = entity.endDate;
+
+        // カテゴリー名の設定
+        if (entity.completeStatus) {
+            // 対象のタスクが完了済みの場合
+            viewHolder.category.setText(R.string.category_completed);
+        } else {
+            // 対象のタスクが未完了の場合
+            if (1 == today.compareTo(entity.endDate)) {
+                // 対象のタスクの日付が本日以前の場合
+                viewHolder.category.setText(R.string.category_expired);
+            } else if (today.equals(entity.endDate)) {
+                // 対象のタスクが本日の場合
+                viewHolder.category.setText(R.string.category_today);
+            } else {
+                // 対象のタスクが明日以降の場合
+                viewHolder.category.setText(R.string.category_after_tomorrow);
+            }
+        }
+
+        // カテゴリー名の表示
+        boolean categoryVis = false;
+        if (adapterPosition == 0) {
+            // 先頭のタスクの場合
+            viewHolder.category.setVisibility(View.VISIBLE);
+        } else if (entity.completeStatus) {
+            if (!entityList.get(adapterPosition - 1).completeStatus) {
+                // 完了済みでかつ、一つ前のタスクが未完了の場合
+                viewHolder.category.setVisibility(View.VISIBLE);
+            }
+        } else if (!date.equals(entityList.get(adapterPosition - 1).endDate)) {
+            // 一つ前の日付と違う場合
+            if (today.equals(date)) {
+                // 日付が今日の場合
+                viewHolder.category.setVisibility(View.VISIBLE);
+
+            } else if (entityList.get(adapterPosition - 1).endDate.equals(today)) {
+                // 一つ前の日付が今日の場合
+                viewHolder.category.setVisibility(View.VISIBLE);
+            }
+        }
+
+        // カテゴリー日付表示非表示
+        if (!entity.completeStatus
+                && today.equals(entity.endDate)
+                && viewHolder.category.getVisibility() == View.VISIBLE) {
+            // 対象のタスクが未完了、日付が本日、カテゴリーが表示されている場合
+            viewHolder.categoryDate.setVisibility(View.VISIBLE);
+        } else {
+            // それ以外の場合
+            viewHolder.categoryDate.setVisibility(View.GONE);
+        }
+
+        // 日付表示非表示
+        if (entity.completeStatus) {
+            // 完了済みの場合
+            viewHolder.dateView.setVisibility(View.VISIBLE);
+        } else if (today.equals(date)) {
+            // 日付が本日の場合
+            viewHolder.dateView.setVisibility(View.GONE);
+        } else {
+            // それ以外の場合
+            viewHolder.dateView.setVisibility(View.VISIBLE);
+        }
 
         // 完了ステータスがTrueなら見た目を変更する
         if (entity.completeStatus) {
@@ -195,6 +248,7 @@ public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.ViewHolder> {
         private ImageButton deleteButton;
         private TodoRowBinding binding;
         private TextView category;
+        private TextView categoryDate;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -204,7 +258,7 @@ public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.ViewHolder> {
             this.checkBox = itemView.findViewById(R.id.checkBox);
             this.binding = DataBindingUtil.bind(itemView);
             this.category = itemView.findViewById(R.id.category_text_view);
-
+            this.categoryDate = itemView.findViewById(R.id.category_date_text_view);
 
             // テキストボックスにリスナー設定
             this.textView.setOnClickListener(new View.OnClickListener() {

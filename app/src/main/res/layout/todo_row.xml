@@ -18,18 +18,40 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
+        <View
+            android:id="@+id/view"
+            android:layout_width="0dp"
+            android:layout_height="0.2dp"
+            android:background="@android:color/darker_gray"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/constraintLayout" />
+
         <TextView
             android:id="@+id/category_text_view"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:paddingStart="8dp"
             android:paddingTop="8dp"
+            android:textColor="@android:color/black"
+            android:textSize="18sp"
+            android:textStyle="bold"
             android:visibility="gone"
-            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <TextView
+            android:id="@+id/category_date_text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:visibility="gone"
+            android:text="@{viewModel.liveTodo[position].endDate}"
+            app:layout_constraintBaseline_toBaselineOf="@+id/category_text_view"
+            app:layout_constraintStart_toEndOf="@+id/category_text_view" />
+
         <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/constraintLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="false"
@@ -41,17 +63,6 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/category_text_view">
-
-            <View
-                android:id="@+id/view"
-                android:layout_width="0dp"
-                android:layout_height="0.2dp"
-                android:layout_marginTop="8dp"
-                android:background="@android:color/darker_gray"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textView_title" />
 
             <TextView
                 android:id="@+id/dateView"
@@ -97,5 +108,6 @@
                 app:srcCompat="@drawable/ic_indeterminate_check_box_black_24dp" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

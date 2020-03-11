@@ -5,4 +5,8 @@
     <string name="hint_detail">詳細メモ</string>
     <string name="hint_date">期限日</string>
     <string name="create_task_page_name">タスク編集</string>
+    <string name="category_expired">期限切れ</string>
+    <string name="category_today">今日</string>
+    <string name="category_after_tomorrow">明日以降</string>
+    <string name="category_completed">完了済み</string>
 </resources>
