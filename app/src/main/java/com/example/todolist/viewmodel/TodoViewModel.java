@@ -1,25 +1,25 @@
 package com.example.todolist.viewmodel;
 
-import android.content.Context;
+import android.app.Application;
 
+import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.ViewModel;
 
 import com.example.todolist.room.TodoEntity;
 import com.example.todolist.room.TodoRepository;
 
 import java.util.List;
 
-public class TodoViewModel extends ViewModel {
+public class TodoViewModel extends AndroidViewModel {
     private TodoRepository mRepository;
 
     //private List<TodoEntity> mLiveTodoEntity;
 
     public MutableLiveData<List<TodoEntity>> liveTodo = new MutableLiveData<>();
 
-    public TodoViewModel(Context context) {
-        //super(application);
-        this.mRepository = new TodoRepository(context);
+    public TodoViewModel(Application application) {
+        super(application);
+        this.mRepository = new TodoRepository(application);
         //this.mLiveTodoEntity = this.mRepository.getLiveTodoEntity();
         this.liveTodo.setValue(this.mRepository.getLiveTodoEntity());
     }

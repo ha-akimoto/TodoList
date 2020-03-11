@@ -26,6 +26,7 @@ public class CreateTaskActivity extends AppCompatActivity implements DatePickerD
     private int id;
     private boolean compStatus;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

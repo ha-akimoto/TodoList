@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -64,7 +65,7 @@ public class TodoListFragment extends Fragment implements OnRecyclerListener {
         View view = inflater.inflate(R.layout.fragment_todo_list, container, false);
 
         // ViewModelの設定
-        this.todoViewModel = new TodoViewModel(getContext());
+        this.todoViewModel = new ViewModelProvider(this).get(TodoViewModel.class);
 
         // アダプターの設定
         Context context = view.getContext();
