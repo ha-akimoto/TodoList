@@ -43,7 +43,7 @@ public class DatePickerDialogFragment extends DialogFragment {
             year = Integer.parseInt(date.substring(0, 4));
             // 月は0~11で表されるので、−1する
             month = Integer.parseInt(date.substring(5, 7)) - 1;
-            dayOfMonth = Integer.parseInt(date.substring(9, 10));
+            dayOfMonth = Integer.parseInt(date.substring(8, 10));
         }
 
         DatePickerDialog datePickerDialog = new DatePickerDialog(getActivity(), listener, year, month, dayOfMonth);
