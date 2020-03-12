@@ -11,10 +11,14 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.databinding.DataBindingUtil;
+import androidx.lifecycle.ViewModelProvider;
 
-import com.example.todolist.fragment.DatePickerDialogFragment;
 import com.example.todolist.R;
 import com.example.todolist.common.Constants;
+import com.example.todolist.databinding.ActivityCreateTaskBinding;
+import com.example.todolist.fragment.DatePickerDialogFragment;
+import com.example.todolist.viewmodel.CreateTodoViewModel;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -25,6 +29,8 @@ public class CreateTaskActivity extends AppCompatActivity implements DatePickerD
     private int position;
     private int id;
     private boolean compStatus;
+    private CreateTodoViewModel viewModel;
+    private ActivityCreateTaskBinding binding;
 
 
     @Override
@@ -32,27 +38,28 @@ public class CreateTaskActivity extends AppCompatActivity implements DatePickerD
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_task);
 
+        this.viewModel = new ViewModelProvider(this).get(CreateTodoViewModel.class);
+
         Intent intent = getIntent();
         this.position = intent.getIntExtra(Constants.KEY_POSITION, -1);
         this.id = intent.getIntExtra(Constants.KEY_ID, 0);
         this.compStatus = intent.getBooleanExtra(Constants.KEY_COMP_STATUS, false);
 
-        ((EditText) findViewById(R.id.editText_title))
-                .setText(intent.getStringExtra(Constants.KEY_TITLE));
-
-        ((EditText) findViewById(R.id.editText_detail))
-                .setText(intent.getStringExtra(Constants.KEY_DETAIL));
-
         // 日付が設定されていなければ現在の日付を設定
         String date = intent.getStringExtra(Constants.KEY_DATE);
         if (null == date || date.isEmpty()) {
-            ((TextView) findViewById(R.id.textView_date)).setText(
-                    DateFormat.format(Constants.DATE_FORMAT, java.util.Calendar.getInstance()));
-
-        } else {
-            ((TextView) findViewById(R.id.textView_date)).setText(date);
-
+            date = DateFormat.format(Constants.DATE_FORMAT,
+                    java.util.Calendar.getInstance()).toString();
         }
+
+        this.viewModel.init(intent.getStringExtra(Constants.KEY_TITLE),
+                date, intent.getStringExtra(Constants.KEY_DETAIL));
+
+        // バインディングの設定
+        this.binding = DataBindingUtil.setContentView(this, R.layout.activity_create_task);
+        this.binding.setViewModel(this.viewModel);
+        this.binding.setLifecycleOwner(this);
+
         // 期限日のTextViewのクリックリスナーの設定（日付入力ダイアログ）
 
         ((TextView) findViewById(R.id.textView_date))
@@ -60,8 +67,7 @@ public class CreateTaskActivity extends AppCompatActivity implements DatePickerD
                     @Override
                     public void onClick(View v) {
                         Bundle bundle = new Bundle();
-                        bundle.putString(Constants.KEY_DATE,
-                                ((TextView) findViewById(R.id.textView_date)).getText().toString());
+                        bundle.putString(Constants.KEY_DATE, viewModel.getDate());
                         DatePickerDialogFragment datePicker = new DatePickerDialogFragment();
                         datePicker.setArguments(bundle);
                         datePicker.show(getSupportFragmentManager(), "datePicker");
@@ -106,6 +112,7 @@ public class CreateTaskActivity extends AppCompatActivity implements DatePickerD
         SimpleDateFormat dateFormat = new SimpleDateFormat(Constants.DATE_FORMAT);
         Date date = new GregorianCalendar(year, month, dayOfMonth).getTime();
 
+        this.viewModel.setDate(dateFormat.format(date));
         ((TextView) findViewById(R.id.textView_date)).setText(dateFormat.format(date));
     }
 }
