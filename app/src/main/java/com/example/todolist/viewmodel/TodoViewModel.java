@@ -11,24 +11,17 @@ import com.example.todolist.room.TodoRepository;
 import java.util.List;
 
 public class TodoViewModel extends AndroidViewModel {
-    private TodoRepository mRepository;
 
-    //private List<TodoEntity> mLiveTodoEntity;
+    private TodoRepository mRepository;
 
     public MutableLiveData<List<TodoEntity>> liveTodo = new MutableLiveData<>();
 
     public TodoViewModel(Application application) {
         super(application);
         this.mRepository = new TodoRepository(application);
-        //this.mLiveTodoEntity = this.mRepository.getLiveTodoEntity();
         this.liveTodo.setValue(this.mRepository.getLiveTodoEntity());
     }
-    /*
-    public List<TodoEntity> getLiveTodoEntity() {
-        return this.mLiveTodoEntity;
-    }
 
-     */
 
     public void insert(TodoEntity todoEntity) {
         this.mRepository.insert(todoEntity);

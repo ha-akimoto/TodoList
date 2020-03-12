@@ -27,12 +27,23 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/constraintLayout" />
 
+        <View
+            android:id="@+id/category_line"
+            android:layout_width="0dp"
+            android:layout_height="0.2dp"
+            android:background="@android:color/darker_gray"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/constraintLayout" />
+
         <TextView
             android:id="@+id/category_text_view"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:paddingStart="8dp"
-            android:paddingTop="8dp"
+            android:paddingTop="16dp"
+            android:paddingBottom="8dp"
             android:textColor="@android:color/black"
             android:textSize="18sp"
             android:textStyle="bold"
@@ -45,8 +56,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:visibility="gone"
             android:text="@{viewModel.liveTodo[position].endDate}"
+            android:visibility="gone"
             app:layout_constraintBaseline_toBaselineOf="@+id/category_text_view"
             app:layout_constraintStart_toEndOf="@+id/category_text_view" />
 
@@ -68,21 +79,20 @@
                 android:id="@+id/dateView"
                 android:layout_width="wrap_content"
                 android:layout_height="0dp"
-                android:layout_marginEnd="8dp"
+                android:paddingStart="3dp"
                 android:paddingTop="5dp"
                 android:text="@{viewModel.liveTodo[position].endDate}"
-                app:layout_constraintEnd_toStartOf="@+id/deleteButton"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintStart_toStartOf="@+id/textView_title"
+                app:layout_constraintTop_toBottomOf="@+id/textView_title" />
 
             <TextView
                 android:id="@+id/textView_title"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
                 android:padding="5dp"
                 android:text="@{viewModel.liveTodo[position].title}"
                 android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                app:layout_constraintEnd_toStartOf="@+id/dateView"
+                app:layout_constraintEnd_toStartOf="@+id/deleteButton"
                 app:layout_constraintHorizontal_bias="1.0"
                 app:layout_constraintStart_toEndOf="@+id/checkBox"
                 app:layout_constraintTop_toTopOf="parent" />

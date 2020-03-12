@@ -1,5 +1,6 @@
 package com.example.todolist.adapter;
 
+import android.os.Handler;
 import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,7 +29,6 @@ import java.util.List;
 
 public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.ViewHolder> {
 
-    //private List<TodoRow> todoList;
     private OnRecyclerListener listener;
     private TodoViewModel viewModel;
 
@@ -83,13 +83,45 @@ public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.ViewHolder> {
         String today = DateFormat.format(Constants.DATE_FORMAT, Calendar.getInstance()).toString();
         String date = entity.endDate;
 
+        // カテゴリー名表示ポジションの取得
+        int topCompletedIndex = -1;
+        int topTodayIndex = -1;
+        int topAfterTomorrowIndex = -1;
+        int topExpiredIndex = -1;
+        for (int i = 0; i < entityList.size(); i++) {
+            if (entityList.get(i).completeStatus) {
+                // 対象のタスクが完了済みの場合
+                if (topCompletedIndex == -1) {
+                    topCompletedIndex = i;
+                }
+            } else {
+                // 対象のタスクが未完了の場合
+                if (0 < today.compareTo(entityList.get(i).endDate)) {
+                    // 対象のタスクの日付が本日以前の場合
+                    if (topExpiredIndex == -1) {
+                        topExpiredIndex = i;
+                    }
+                } else if (today.equals(entityList.get(i).endDate)) {
+                    // 対象のタスクが本日の場合
+                    if (topTodayIndex == -1) {
+                        topTodayIndex = i;
+                    }
+                } else {
+                    // 対象のタスクが明日以降の場合
+                    if (topAfterTomorrowIndex == -1) {
+                        topAfterTomorrowIndex = i;
+                    }
+                }
+            }
+        }
+
         // カテゴリー名の設定
         if (entity.completeStatus) {
             // 対象のタスクが完了済みの場合
             viewHolder.category.setText(R.string.category_completed);
         } else {
             // 対象のタスクが未完了の場合
-            if (1 == today.compareTo(entity.endDate)) {
+            if (0 < today.compareTo(entity.endDate)) {
                 // 対象のタスクの日付が本日以前の場合
                 viewHolder.category.setText(R.string.category_expired);
             } else if (today.equals(entity.endDate)) {
@@ -102,25 +134,18 @@ public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.ViewHolder> {
         }
 
         // カテゴリー名の表示
-        boolean categoryVis = false;
-        if (adapterPosition == 0) {
-            // 先頭のタスクの場合
+        if (topCompletedIndex == viewHolder.getAdapterPosition()
+                || topTodayIndex == viewHolder.getAdapterPosition()
+                || topAfterTomorrowIndex == viewHolder.getAdapterPosition()
+                || topExpiredIndex == viewHolder.getAdapterPosition()) {
             viewHolder.category.setVisibility(View.VISIBLE);
-        } else if (entity.completeStatus) {
-            if (!entityList.get(adapterPosition - 1).completeStatus) {
-                // 完了済みでかつ、一つ前のタスクが未完了の場合
-                viewHolder.category.setVisibility(View.VISIBLE);
-            }
-        } else if (!date.equals(entityList.get(adapterPosition - 1).endDate)) {
-            // 一つ前の日付と違う場合
-            if (today.equals(date)) {
-                // 日付が今日の場合
-                viewHolder.category.setVisibility(View.VISIBLE);
+        }
 
-            } else if (entityList.get(adapterPosition - 1).endDate.equals(today)) {
-                // 一つ前の日付が今日の場合
-                viewHolder.category.setVisibility(View.VISIBLE);
-            }
+        // カテゴリー下線の表示
+        if (viewHolder.category.getVisibility() == View.VISIBLE) {
+            viewHolder.categoryLine.setVisibility(View.VISIBLE);
+        } else {
+            viewHolder.categoryLine.setVisibility(View.GONE);
         }
 
         // カテゴリー日付表示非表示
@@ -181,8 +206,8 @@ public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.ViewHolder> {
         // Todoリストから削除
         this.viewModel.liveTodo.getValue().remove(position);
 
-        notifyDataSetChanged();
-        //notifyItemRemoved(position);
+        notifyDataSetChangedDelayed();
+        notifyItemRemoved(position);
     }
 
     /**
@@ -202,11 +227,11 @@ public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.ViewHolder> {
         todoList.add(entity);
         Collections.sort(todoList, new TodoComparator());
         this.viewModel.liveTodo.setValue(todoList);
-        //int position = this.todoList.indexOf(entity);
+        int position = this.viewModel.liveTodo.getValue().indexOf(entity);
 
-        notifyDataSetChanged();
+        notifyDataSetChangedDelayed();
 
-        //notifyItemInserted(position);
+        notifyItemInserted(position);
     }
 
     /**
@@ -223,21 +248,31 @@ public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.ViewHolder> {
         todoList.add(entity);
 
         // 並び替え
-        //int from = position;
+        int from = position;
         Collections.sort(todoList, new TodoComparator());
-        //int to = this.todoList.indexOf(entity);
+        int to = this.viewModel.liveTodo.getValue().indexOf(entity);
         this.viewModel.liveTodo.setValue(todoList);
 
         // DB更新
         this.viewModel.update(entity);
 
-        notifyDataSetChanged();
-        //notifyItemMoved(from, to);
-        //notifyItemChanged(to, entity);
+        notifyDataSetChangedDelayed();
+
+        notifyItemMoved(from, to);
+        notifyItemChanged(to, entity);
 
     }
 
-
+    private void notifyDataSetChangedDelayed() {
+        Handler handler = new Handler();
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                notifyDataSetChanged();
+            }
+        };
+        handler.postDelayed(runnable, 500);
+    }
 
 
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -249,6 +284,7 @@ public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.ViewHolder> {
         private TodoRowBinding binding;
         private TextView category;
         private TextView categoryDate;
+        private View categoryLine;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -259,6 +295,7 @@ public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.ViewHolder> {
             this.binding = DataBindingUtil.bind(itemView);
             this.category = itemView.findViewById(R.id.category_text_view);
             this.categoryDate = itemView.findViewById(R.id.category_date_text_view);
+            this.categoryLine = itemView.findViewById(R.id.category_line);
 
             // テキストボックスにリスナー設定
             this.textView.setOnClickListener(new View.OnClickListener() {
