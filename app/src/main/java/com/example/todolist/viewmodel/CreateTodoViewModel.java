@@ -34,28 +34,27 @@ public class CreateTodoViewModel extends ViewModel {
         }
     }
 
-
-    public String getTitle() {
-        return title.getValue();
+    public MutableLiveData<String> getTitle() {
+        return title;
     }
 
-    public void setTitle(String title) {
-        this.title.setValue(title);
+    public void setTitle(MutableLiveData<String> title) {
+        this.title = title;
     }
 
-    public String getDate() {
-        return date.getValue();
+    public MutableLiveData<String> getDate() {
+        return date;
     }
 
-    public void setDate(String date) {
-        this.date.setValue(date);
+    public void setDate(MutableLiveData<String> date) {
+        this.date = date;
     }
 
-    public String getDetail() {
-        return detail.getValue();
+    public MutableLiveData<String> getDetail() {
+        return detail;
     }
 
-    public void setDetail(String detail) {
-        this.detail.setValue(detail);
+    public void setDetail(MutableLiveData<String> detail) {
+        this.detail = detail;
     }
 }

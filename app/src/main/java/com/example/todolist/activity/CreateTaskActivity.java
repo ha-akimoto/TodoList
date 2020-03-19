@@ -67,7 +67,7 @@ public class CreateTaskActivity extends AppCompatActivity implements DatePickerD
                     @Override
                     public void onClick(View v) {
                         Bundle bundle = new Bundle();
-                        bundle.putString(Constants.KEY_DATE, viewModel.getDate());
+                        bundle.putString(Constants.KEY_DATE, viewModel.getDate().getValue());
                         DatePickerDialogFragment datePicker = new DatePickerDialogFragment();
                         datePicker.setArguments(bundle);
                         datePicker.show(getSupportFragmentManager(), "datePicker");
@@ -112,7 +112,7 @@ public class CreateTaskActivity extends AppCompatActivity implements DatePickerD
         SimpleDateFormat dateFormat = new SimpleDateFormat(Constants.DATE_FORMAT);
         Date date = new GregorianCalendar(year, month, dayOfMonth).getTime();
 
-        this.viewModel.setDate(dateFormat.format(date));
-        ((TextView) findViewById(R.id.textView_date)).setText(dateFormat.format(date));
+        this.viewModel.getDate().setValue(dateFormat.format(date));
+        //((TextView) findViewById(R.id.textView_date)).setText(dateFormat.format(date));
     }
 }
