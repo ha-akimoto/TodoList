@@ -19,6 +19,7 @@ import com.example.todolist.common.Constants;
 import com.example.todolist.databinding.ActivityCreateTaskBinding;
 import com.example.todolist.fragment.DatePickerDialogFragment;
 import com.example.todolist.viewmodel.CreateTodoViewModel;
+import com.example.todolist.viewmodel.CreateTodoViewModelFactory;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -38,7 +39,6 @@ public class CreateTaskActivity extends AppCompatActivity implements DatePickerD
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_task);
 
-        this.viewModel = new ViewModelProvider(this).get(CreateTodoViewModel.class);
 
         Intent intent = getIntent();
         this.position = intent.getIntExtra(Constants.KEY_POSITION, -1);
@@ -52,8 +52,13 @@ public class CreateTaskActivity extends AppCompatActivity implements DatePickerD
                     java.util.Calendar.getInstance()).toString();
         }
 
-        this.viewModel.init(intent.getStringExtra(Constants.KEY_TITLE),
-                date, intent.getStringExtra(Constants.KEY_DETAIL));
+        // ViewModelの設定
+        this.viewModel = new ViewModelProvider(this,
+                new CreateTodoViewModelFactory(getApplication(),
+                        intent.getStringExtra(Constants.KEY_TITLE),
+                        date,
+                        intent.getStringExtra(Constants.KEY_DETAIL)))
+                .get(CreateTodoViewModel.class);
 
         // バインディングの設定
         this.binding = DataBindingUtil.setContentView(this, R.layout.activity_create_task);

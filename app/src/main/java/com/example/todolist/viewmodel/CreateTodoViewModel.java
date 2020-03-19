@@ -11,27 +11,13 @@ public class CreateTodoViewModel extends ViewModel {
 
     private MutableLiveData<String> detail;
 
-    /**
-     * 初期化
-     * フィールドの値がNullの場合のみ、値をセットする
-     *
-     * @param title  タイトル
-     * @param date   期限日
-     * @param detail 詳細
-     */
-    public void init(String title, String date, String detail) {
-        if (this.title == null) {
+    public CreateTodoViewModel(String title, String date, String detail) {
             this.title = new MutableLiveData<>();
             this.title.setValue(title);
-        }
-        if (this.date == null) {
             this.date = new MutableLiveData<>();
             this.date.setValue(date);
-        }
-        if (this.detail == null) {
             this.detail = new MutableLiveData<>();
             this.detail.setValue(detail);
-        }
     }
 
     public MutableLiveData<String> getTitle() {
