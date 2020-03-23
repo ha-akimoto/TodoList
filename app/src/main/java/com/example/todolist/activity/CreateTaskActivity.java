@@ -37,8 +37,6 @@ public class CreateTaskActivity extends AppCompatActivity implements DatePickerD
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_create_task);
-
 
         Intent intent = getIntent();
         this.position = intent.getIntExtra(Constants.KEY_POSITION, -1);
@@ -87,9 +85,9 @@ public class CreateTaskActivity extends AppCompatActivity implements DatePickerD
         Intent intent = new Intent();
 
         //テキストボックスに入力された値を取得して文字列に変換
-        String title = ((EditText) findViewById(R.id.editText_title)).getText().toString();
+        String title = ((EditText) findViewById(R.id.textInputLayout_title)).getText().toString();
         String date = ((TextView) findViewById(R.id.textView_date)).getText().toString();
-        String detail = ((EditText) findViewById(R.id.editText_detail)).getText().toString();
+        String detail = ((EditText) findViewById(R.id.textInputLayout_detail)).getText().toString();
 
         intent.putExtra(Constants.KEY_POSITION, this.position);
         intent.putExtra(Constants.KEY_ID, this.id);

@@ -148,6 +148,7 @@ public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.ViewHolder> {
             viewHolder.categoryLine.setVisibility(View.GONE);
         }
 
+
         // カテゴリー日付表示非表示
         if (!entity.completeStatus
                 && today.equals(entity.endDate)
