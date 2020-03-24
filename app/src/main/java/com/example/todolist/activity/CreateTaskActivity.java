@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.text.format.DateFormat;
 import android.view.View;
 import android.widget.DatePicker;
-import android.widget.EditText;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -85,9 +84,9 @@ public class CreateTaskActivity extends AppCompatActivity implements DatePickerD
         Intent intent = new Intent();
 
         //テキストボックスに入力された値を取得して文字列に変換
-        String title = ((EditText) findViewById(R.id.textInputLayout_title)).getText().toString();
-        String date = ((TextView) findViewById(R.id.textView_date)).getText().toString();
-        String detail = ((EditText) findViewById(R.id.textInputLayout_detail)).getText().toString();
+        String title = this.viewModel.getTitle().getValue();
+        String date = this.viewModel.getDate().getValue();
+        String detail = this.viewModel.getDetail().getValue();
 
         intent.putExtra(Constants.KEY_POSITION, this.position);
         intent.putExtra(Constants.KEY_ID, this.id);
@@ -116,6 +115,5 @@ public class CreateTaskActivity extends AppCompatActivity implements DatePickerD
         Date date = new GregorianCalendar(year, month, dayOfMonth).getTime();
 
         this.viewModel.getDate().setValue(dateFormat.format(date));
-        //((TextView) findViewById(R.id.textView_date)).setText(dateFormat.format(date));
     }
 }
